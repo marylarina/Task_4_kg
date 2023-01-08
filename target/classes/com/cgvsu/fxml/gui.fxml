@@ -77,10 +77,7 @@
 
     <Canvas fx:id="canvas" height="870" width="1600" AnchorPane.topAnchor="30.0" />
     <ColorPicker fx:id="colorPicker" layoutX="14.0" layoutY="480.0" onAction="#changeColor" prefHeight="26.0" prefWidth="150.0" />
-   <CheckBox fx:id="drawMeshCheckBox" layoutX="14.0" layoutY="520.0" mnemonicParsing="false" onMouseClicked="#drawMesh" text="Сетка" />
-    <CheckBox fx:id="useLightingCheckBox" layoutX="14.0" layoutY="545.0" mnemonicParsing="false" text="Использовать освещение" onAction="#setUseLighting" />
-   <CheckBox fx:id="texturePolygonsCheckBox" layoutX="14.0" layoutY="570.0" mnemonicParsing="false" onMouseClicked="#texturePolygons" text="Наложение текстуры" />
-   <Button fx:id="delete" layoutX="231.0" layoutY="137.0" mnemonicParsing="false" onMouseClicked="#setDeleteModel" text="Удалить модель" />
+   <Button fx:id="delete" layoutX="16.0" layoutY="617.0" mnemonicParsing="false" onMouseClicked="#setDeleteModel" text="Удалить модель" />
     <TableView fx:id="table" layoutX="14.0" layoutY="50.0" onMouseClicked="#handle" prefHeight="200.0" prefWidth="200.0">
         <columns>
             <TableColumn fx:id="model" prefWidth="75.0" text="Models" />
@@ -97,4 +94,11 @@
          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
       </columnResizePolicy>
     </TableView>
+   <VBox fx:id="drawingMode" layoutX="14.0" layoutY="525.0" prefHeight="80.0" prefWidth="240.0">
+      <children>
+         <CheckBox fx:id="drawMeshCheckBox" mnemonicParsing="false" onMouseClicked="#drawMesh" text="Сетка" />
+          <CheckBox fx:id="useLightingCheckBox" mnemonicParsing="false" onAction="#setUseLighting" text="Использовать освещение" />
+         <CheckBox fx:id="texturePolygonsCheckBox" mnemonicParsing="false" onMouseClicked="#texturePolygons" text="Наложение текстуры" />
+      </children>
+   </VBox>
 </AnchorPane>

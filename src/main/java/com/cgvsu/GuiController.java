@@ -23,6 +23,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
@@ -88,6 +89,9 @@ public class GuiController {
     @FXML
     public CheckBox texturePolygonsCheckBox;
 
+    @FXML
+    public VBox drawingMode;
+
     private boolean drawMesh = false;
     private boolean useLighting = false;
     private boolean texturePolygons = false;
@@ -111,6 +115,8 @@ public class GuiController {
 
         timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
+        whiteTheme();
+        drawingMode.setSpacing(4);
 
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
             double width = canvas.getWidth();
@@ -136,79 +142,90 @@ public class GuiController {
 
     @FXML
     private Color changeColor() {
-        Color newColor = colorPicker.getValue();
-        color = newColor;
+        color = colorPicker.getValue();
         return color;
     }
 
     @FXML
-    private void setUseLighting() {
-        useLighting = !useLighting;
-    }
-
-
-    @FXML
     private void whiteTheme(){
         anchorPane.setStyle("-fx-background-color: #ffffff");
+        delete.setStyle("-fx-border-color: #1d1d1d");
+        drawingMode.setStyle("-fx-border-style: solid;"
+                + "-fx-border-width: 2;"
+                + "-fx-border-color: #1d1d1d");
+        drawMeshCheckBox.setStyle("-fx-text-fill: black");
+        useLightingCheckBox.setStyle("-fx-text-fill: black");
+        texturePolygonsCheckBox.setStyle("-fx-text-fill: black");
+        table.setStyle("-fx-border-style: solid;"
+                + "-fx-border-width: 2;"
+                + "-fx-border-color: #1d1d1d");
+        cameras.setStyle("-fx-border-style: solid;"
+                + "-fx-border-width: 2;"
+                + "-fx-border-color: #1d1d1d");
+
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setStroke(Color.BLACK);
     }
 
     @FXML
     private void blackTheme(){
-        anchorPane.setStyle("-fx-background-color: #000000");
+        anchorPane.setStyle("-fx-background-color: #181818");
+        delete.setStyle("-fx-border-color: #A9A9A9");
+        drawingMode.setStyle("-fx-border-style: solid;"
+                + "-fx-border-width: 2;"
+                + "-fx-border-color: #A9A9A9");
+        drawMeshCheckBox.setStyle("-fx-text-fill: white");
+        useLightingCheckBox.setStyle("-fx-text-fill: white");
+        texturePolygonsCheckBox.setStyle("-fx-text-fill: white");
+        table.setStyle("-fx-border-style: solid;"
+                + "-fx-border-width: 2;"
+                + "-fx-border-color: #A9A9A9");
+        cameras.setStyle("-fx-border-style: solid;"
+                + "-fx-border-width: 2;"
+                + "-fx-border-color: #A9A9A9");
+
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setStroke(Color.WHITE);
     }
 
     @FXML
     private void drawMesh(){
-        drawMesh = !(drawMesh);
-        //RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int)canvas.getWidth(), (int)canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
-    }
-
-    /*@FXML
-    private void fillPolygons(){
-        //fillPolygons1 = !(fillPolygons1);
-        if (mesh!=null) {
-            fillPolygons1 = !(fillPolygons1);
-            //RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) canvas.getWidth(), (int) canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
-        }else{
-
+        drawMesh = !drawMesh;
+        if(activeModels.size()==0){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
             alert.setTitle("Information");
             alert.setHeaderText(null);
-            alert.setContentText("В приложении нет загруженных моделей!");
+            alert.setContentText("В приложении нет загруженных моделей или не выбрана модель из списка!");
             alert.showAndWait();
         }
     }
-
-     */
 
     @FXML
     private void texturePolygons(){
-        texturePolygons = !(texturePolygons);
-        //RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int)canvas.getWidth(), (int)canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
-    }
-
-    /*@FXML
-    private Model handle(){
-        try {
-            ModelTable v = table.getSelectionModel().getSelectedItem();
-            mesh = v.model;
-        }
-        catch (NullPointerException exception){
+        texturePolygons = !texturePolygons;
+        if(activeModels.size()==0){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
             alert.setTitle("Information");
             alert.setHeaderText(null);
-            alert.setContentText("В этой строке нет загруженных моделей!");
+            alert.setContentText("В приложении нет загруженных моделей или не выбрана модель из списка!");
             alert.showAndWait();
         }
-        return mesh;
     }
-     */
+
+    @FXML
+    private void setUseLighting() {
+        useLighting = !useLighting;
+        if(activeModels.size()==0){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+            alert.setTitle("Information");
+            alert.setHeaderText(null);
+            alert.setContentText("В приложении нет загруженных моделей или не выбрана модель из списка!");
+            alert.showAndWait();
+        }
+    }
 
     @FXML
     private ArrayList<Model> handle(){
@@ -245,23 +262,6 @@ public class GuiController {
         table.getItems().remove(deleteModel);
         activeModels.remove(deleteModel.model);
     }
-
-   /* @FXML
-    private Model handle() throws IOException {
-        try {
-            ModelTable v = table.getSelectionModel().getSelectedItem();
-            mesh = v.model;
-        }catch (NullPointerException exception){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-
-            alert.setTitle("Information");
-            alert.setHeaderText(null);
-            alert.setContentText("Нажмите на строку таблицы!");
-            alert.showAndWait();
-        }
-        return mesh;
-    }
-    */
 
 
 
@@ -311,7 +311,7 @@ public class GuiController {
 
         Path fileName = Path.of(file.getAbsolutePath());
         FileOutputStream fileOutputStream = new FileOutputStream(String.valueOf(fileName));
-        byte [] str = ObjWriter.write(mesh).getBytes(StandardCharsets.UTF_8);
+        byte [] str = ObjWriter.write(table.getSelectionModel().getSelectedItem().model).getBytes(StandardCharsets.UTF_8);
         fileOutputStream.write(str);
     }
 

@@ -48,3 +48,10 @@
 .table-view:focused .table-row-cell:filled:focused:selected {
     -fx-background-color: -fx-focus-color;
 }
+
+.check-box{
+-fx-font-size: 15px;
+-fx-font-family: "Segoe UI Light";
+}
+
+
