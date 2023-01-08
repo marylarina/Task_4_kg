@@ -27,10 +27,12 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
 import java.awt.*;
+import java.awt.Button;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import javax.vecmath.Vector3f;
 
@@ -43,6 +45,7 @@ public class GuiController {
     final private float TRANSLATION = 0.5F;
     @FXML
     public javafx.scene.control.Button delete;
+
 
 
     @FXML
@@ -68,6 +71,8 @@ public class GuiController {
 
     @FXML
     private TableColumn<CameraTable, String> cameraName;
+
+    private ArrayList<Model> activeModels = new ArrayList<>();
 
     @FXML
     public CheckBox drawMesh;
@@ -108,32 +113,12 @@ public class GuiController {
 
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
 
-            /*drawMesh.setOnAction(actionEvent -> {
-                drawMesh1 = !(drawMesh1);
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, canvas, drawMesh1, fillPolygons1, texturePolygons1);
-            });
-
-             */
-
-           /* delete.setOnAction(event3 -> {
-                setDeleteModel();
-            });
-            */
-
-            canvas.setOnMouseClicked(event2 -> {
-                if (event2.getButton() == MouseButton.PRIMARY) {
-                    try {
-                        mesh=handle();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
             camera.setAspectRatio((float) (width / height));
 
-            if (mesh != null) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, canvas, drawMesh1, fillPolygons1, texturePolygons1);
+            for(int i=0; i<activeModels.size(); i++) {
+                if (activeModels.get(i) != null) {
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, activeModels.get(i), (int) width, (int) height, canvas, drawMesh1, fillPolygons1, texturePolygons1);
+                }
             }
 
         });
@@ -165,14 +150,71 @@ public class GuiController {
 
     @FXML
     private void fillPolygons(){
-        fillPolygons1 = !(fillPolygons1);
-        RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int)canvas.getWidth(), (int)canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
+        //fillPolygons1 = !(fillPolygons1);
+        if (mesh!=null) {
+            fillPolygons1 = !(fillPolygons1);
+            RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) canvas.getWidth(), (int) canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
+        }else{
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+            alert.setTitle("Information");
+            alert.setHeaderText(null);
+            alert.setContentText("В приложении нет загруженных моделей!");
+            alert.showAndWait();
+        }
     }
 
     @FXML
     private void texturePolygons(){
         texturePolygons1 = !(texturePolygons1);
         RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int)canvas.getWidth(), (int)canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
+    }
+
+    /*@FXML
+    private Model handle(){
+        try {
+            ModelTable v = table.getSelectionModel().getSelectedItem();
+            mesh = v.model;
+        }
+        catch (NullPointerException exception){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+            alert.setTitle("Information");
+            alert.setHeaderText(null);
+            alert.setContentText("В этой строке нет загруженных моделей!");
+            alert.showAndWait();
+        }
+        return mesh;
+    }
+     */
+
+    @FXML
+    private ArrayList<Model> handle(){
+        int count=0;
+        try {
+            ModelTable v = table.getSelectionModel().getSelectedItem();
+            mesh = v.model;
+            for(int i=0; i<activeModels.size(); i++){
+                if(mesh != activeModels.get(i)){
+                    count++;
+                }
+            }
+            if(count==activeModels.size()) {
+                activeModels.add(mesh);
+            }else{
+                activeModels.remove(mesh);
+            }
+        }
+        catch (NullPointerException exception){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+            alert.setTitle("Information");
+            alert.setHeaderText(null);
+            alert.setContentText("В этой строке нет загруженных моделей!");
+            alert.showAndWait();
+        }
+        return activeModels;
     }
 
     @FXML
@@ -183,7 +225,7 @@ public class GuiController {
         mesh = null;
     }
 
-    @FXML
+   /* @FXML
     private Model handle() throws IOException {
         try {
             ModelTable v = table.getSelectionModel().getSelectedItem();
@@ -198,6 +240,8 @@ public class GuiController {
         }
         return mesh;
     }
+    */
+
 
 
     @FXML
