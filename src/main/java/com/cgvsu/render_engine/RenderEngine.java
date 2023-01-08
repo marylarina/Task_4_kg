@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.cgvsu.math.Vector3f;
 import com.cgvsu.math.Vector2f;
+import com.cgvsu.math.Matrix4f;
 import com.cgvsu.model.ModelUtils;
 import com.cgvsu.render_engine.triangle_rasterization.*;
 import javafx.scene.canvas.GraphicsContext;
@@ -19,7 +20,7 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
 
 import javax.imageio.ImageIO;
-import javax.vecmath.*;
+//import javax.vecmath.*;
 
 import com.cgvsu.model.Model;
 
@@ -34,8 +35,9 @@ public class RenderEngine {
             final int width,
             final int height,
             Canvas canvas,
+            Color color,
             boolean drawMesh,
-            boolean fillPolygons,
+            boolean useLighting,
             boolean texturePolygons) {
         Matrix4f modelMatrix = rotateScaleTranslate();
         Matrix4f viewMatrix = camera.getViewMatrix();
@@ -60,6 +62,9 @@ public class RenderEngine {
             ArrayList<Vector2f> resultPoints = new ArrayList<>();
             ArrayList<Vector2f> textureVertices = new ArrayList<>();
             ArrayList<Vector3f> normals = new ArrayList<>();
+
+            ArrayList<Vector3f> resultPoints3D = new ArrayList<>();
+
             ArrayList<Float> z_coordinates = new ArrayList<>();
             Vector3f polygonNormal = new Vector3f(0,0,0);
 
@@ -75,7 +80,9 @@ public class RenderEngine {
                     textureVertices.add(textureVertex);
                 }
 
-                javax.vecmath.Vector3f vertexVecmath = new javax.vecmath.Vector3f(vertex.getX(), vertex.getY(), vertex.getZ());
+                Vector3f vertexVecmath = new Vector3f(vertex.getX(), vertex.getY(), vertex.getZ());
+
+                resultPoints3D.add(vertexVecmath);
 
                 Vector2f resultPoint = vertexToPoint(multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertexVecmath), width, height);
                 resultPoints.add(resultPoint);
@@ -90,17 +97,22 @@ public class RenderEngine {
                 drawPolygon(graphicsContext, resultPoints, nVerticesInPolygon);
             }
 
-            if(fillPolygons) {
+            if(useLighting && !texturePolygons) {
                 Vector3f position = new Vector3f(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
                 Vector3f target = new Vector3f(camera.getTarget().x, camera.getTarget().y, camera.getTarget().z);
-                fillPolygonWithLight(graphicsUtils, resultPoints, Color.RED, z_buffer, position, target, z_coordinates, polygonNormal);
+                fillPolygonWithLight(graphicsUtils, resultPoints, color, z_buffer, position, target, z_coordinates, polygonNormal);
+            }
+
+            if(!useLighting && !texturePolygons) {
+                Vector3f position = new Vector3f(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
+                fillPolygonWithoutLight(graphicsUtils, resultPoints, color, z_buffer, position, z_coordinates);
             }
 
             if(texturePolygons && mesh.textureVertices.size() != 0) {
                 Vector3f position = new Vector3f(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
                 Vector3f target = new Vector3f(camera.getTarget().x, camera.getTarget().y, camera.getTarget().z);
                 try {
-                    BufferedImage texture = ImageIO.read(new File("aaaaa.jpg"));
+                    BufferedImage texture = ImageIO.read(new File("C:\\Users\\feDos\\Downloads\\lowpoly-modeli-vendenta-mask-1696\\V for Vendetta MASK\\Texture\\VMaskCol.jpg"));
                     texturePolygon(graphicsUtils, resultPoints, textureVertices, texture, z_buffer, position, target, z_coordinates, polygonNormal);
                 } catch (IOException e) {
                     System.out.println(e);
@@ -256,7 +268,12 @@ public class RenderEngine {
         return alpha * z1 + beta * z2 + gamma * z3;
     }
 
-    private static void fillPolygon(final GraphicsUtils gr, ArrayList<Vector2f> resultPoints, Color color, float[][] z_buffer, Vector3f position, ArrayList<Float> z_coordinates, float shadowIndex) {
+    private static void fillPolygon(
+            final GraphicsUtils gr,
+            ArrayList<Vector2f> resultPoints,
+            Color color, float[][] z_buffer,
+            Vector3f position, ArrayList<Float> z_coordinates,
+            float shadowIndex) {
 
         ArrayList<Vector2f> points = new ArrayList<>();
         points.add(resultPoints.get(0));

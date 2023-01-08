@@ -1,5 +1,6 @@
 package com.cgvsu;
 
+import com.cgvsu.math.Vector3f;
 import com.cgvsu.objwriter.ObjWriter;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.beans.value.ChangeListener;
@@ -16,6 +17,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -27,14 +29,12 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
 import java.awt.*;
-import java.awt.Button;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import javax.vecmath.Vector3f;
 
 import com.cgvsu.model.Model;
 import com.cgvsu.objreader.ObjReader;
@@ -44,7 +44,7 @@ public class GuiController {
 
     final private float TRANSLATION = 0.5F;
     @FXML
-    public javafx.scene.control.Button delete;
+    public Button delete;
 
 
 
@@ -56,6 +56,11 @@ public class GuiController {
 
     private Model mesh = null;
     private Model activeModel = null;
+
+    private Color color = Color.WHITE;
+
+    @FXML
+    private ColorPicker colorPicker = new ColorPicker();
 
     private ObservableList<ModelTable> models = FXCollections.observableArrayList();
     private ObservableList<CameraTable> camerasTable = FXCollections.observableArrayList();
@@ -75,21 +80,21 @@ public class GuiController {
     private ArrayList<Model> activeModels = new ArrayList<>();
 
     @FXML
-    public CheckBox drawMesh;
+    public CheckBox drawMeshCheckBox;
 
     @FXML
-    public CheckBox fillPolygons;
+    public CheckBox useLightingCheckBox;
 
     @FXML
-    public CheckBox texturePolygons;
+    public CheckBox texturePolygonsCheckBox;
 
-    boolean drawMesh1 = false;
-    boolean fillPolygons1 = false;
-    boolean texturePolygons1 = false;
+    private boolean drawMesh = false;
+    private boolean useLighting = false;
+    private boolean texturePolygons = false;
 
     private Camera camera = new Camera(
-            new Vector3f(0, 00, 100),
-            new Vector3f(0, 0, 0),
+            new com.cgvsu.math.Vector3f(0, 00, 100),
+            new com.cgvsu.math.Vector3f(0, 0, 0),
             1.0F, 1, 0.01F, 100);
 
     private Timeline timeline;
@@ -117,7 +122,9 @@ public class GuiController {
 
             for(int i=0; i<activeModels.size(); i++) {
                 if (activeModels.get(i) != null) {
-                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, activeModels.get(i), (int) width, (int) height, canvas, drawMesh1, fillPolygons1, texturePolygons1);
+                    RenderEngine.render(canvas.getGraphicsContext2D(),
+                            camera, activeModels.get(i), (int) width, (int) height,
+                            canvas, color, drawMesh, useLighting, texturePolygons);
                 }
             }
 
@@ -125,6 +132,18 @@ public class GuiController {
 
         timeline.getKeyFrames().add(frame);
         timeline.play();
+    }
+
+    @FXML
+    private Color changeColor() {
+        Color newColor = colorPicker.getValue();
+        color = newColor;
+        return color;
+    }
+
+    @FXML
+    private void setUseLighting() {
+        useLighting = !useLighting;
     }
 
 
@@ -144,16 +163,16 @@ public class GuiController {
 
     @FXML
     private void drawMesh(){
-        drawMesh1 = !(drawMesh1);
-        RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int)canvas.getWidth(), (int)canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
+        drawMesh = !(drawMesh);
+        //RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int)canvas.getWidth(), (int)canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
     }
 
-    @FXML
+    /*@FXML
     private void fillPolygons(){
         //fillPolygons1 = !(fillPolygons1);
         if (mesh!=null) {
             fillPolygons1 = !(fillPolygons1);
-            RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) canvas.getWidth(), (int) canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
+            //RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) canvas.getWidth(), (int) canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
         }else{
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -165,10 +184,12 @@ public class GuiController {
         }
     }
 
+     */
+
     @FXML
     private void texturePolygons(){
-        texturePolygons1 = !(texturePolygons1);
-        RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int)canvas.getWidth(), (int)canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
+        texturePolygons = !(texturePolygons);
+        //RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int)canvas.getWidth(), (int)canvas.getHeight(), canvas, drawMesh1, fillPolygons1, texturePolygons1);
     }
 
     /*@FXML
@@ -222,7 +243,7 @@ public class GuiController {
         ModelTable deleteModel = table.getSelectionModel().getSelectedItem();
         models.remove(deleteModel);
         table.getItems().remove(deleteModel);
-        mesh = null;
+        activeModels.remove(deleteModel.model);
     }
 
    /* @FXML
@@ -296,27 +317,27 @@ public class GuiController {
 
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, 0, -TRANSLATION));
+        camera.movePosition(new com.cgvsu.math.Vector3f(0, 0, -TRANSLATION));
     }
 
     @FXML
     public void handleCameraBackward(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, 0, TRANSLATION));
+        camera.movePosition(new com.cgvsu.math.Vector3f(0, 0, TRANSLATION));
     }
 
     @FXML
     public void handleCameraLeft(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(TRANSLATION, 0, 0));
+        camera.movePosition(new com.cgvsu.math.Vector3f(TRANSLATION, 0, 0));
     }
 
     @FXML
     public void handleCameraRight(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(-TRANSLATION, 0, 0));
+        camera.movePosition(new com.cgvsu.math.Vector3f(-TRANSLATION, 0, 0));
     }
 
     @FXML
     public void handleCameraUp(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, TRANSLATION, 0));
+        camera.movePosition(new com.cgvsu.math.Vector3f(0, TRANSLATION, 0));
     }
 
     @FXML

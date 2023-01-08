@@ -76,9 +76,10 @@
     </MenuBar>
 
     <Canvas fx:id="canvas" height="870" width="1600" AnchorPane.topAnchor="30.0" />
-   <CheckBox layoutX="24.0" layoutY="481.0" mnemonicParsing="false" onMouseClicked="#drawMesh" text="Сетка" />
-   <CheckBox layoutX="25.0" layoutY="512.0" mnemonicParsing="false" onMouseClicked="#fillPolygons" text="Заполнение цветом" />
-   <CheckBox layoutX="26.0" layoutY="541.0" mnemonicParsing="false" onMouseClicked="#texturePolygons" text="Наложение текстуры" />
+    <ColorPicker fx:id="colorPicker" layoutX="14.0" layoutY="480.0" onAction="#changeColor" prefHeight="26.0" prefWidth="150.0" />
+   <CheckBox fx:id="drawMeshCheckBox" layoutX="14.0" layoutY="520.0" mnemonicParsing="false" onMouseClicked="#drawMesh" text="Сетка" />
+    <CheckBox fx:id="useLightingCheckBox" layoutX="14.0" layoutY="545.0" mnemonicParsing="false" text="Использовать освещение" onAction="#setUseLighting" />
+   <CheckBox fx:id="texturePolygonsCheckBox" layoutX="14.0" layoutY="570.0" mnemonicParsing="false" onMouseClicked="#texturePolygons" text="Наложение текстуры" />
    <Button fx:id="delete" layoutX="231.0" layoutY="137.0" mnemonicParsing="false" onMouseClicked="#setDeleteModel" text="Удалить модель" />
     <TableView fx:id="table" layoutX="14.0" layoutY="50.0" onMouseClicked="#handle" prefHeight="200.0" prefWidth="200.0">
         <columns>

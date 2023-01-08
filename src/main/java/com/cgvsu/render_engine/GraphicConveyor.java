@@ -1,5 +1,11 @@
 package com.cgvsu.render_engine;
-import javax.vecmath.*;
+import com.cgvsu.render_engine.triangle_rasterization.MyPoint2D;
+
+//import javax.vecmath.*;
+
+import com.cgvsu.math.Vector3f;
+import com.cgvsu.math.Vector2f;
+import com.cgvsu.math.Matrix4f;
 
 public class GraphicConveyor {
 
@@ -21,19 +27,25 @@ public class GraphicConveyor {
         Vector3f resultY = new Vector3f();
         Vector3f resultZ = new Vector3f();
 
-        resultZ.sub(target, eye);
-        resultX.cross(up, resultZ);
-        resultY.cross(resultZ, resultX);
+        resultZ = Vector3f.sub(target, eye);
+        resultX = Vector3f.calculateCrossProduct(up, resultZ);
+        resultY = Vector3f.calculateCrossProduct(resultZ, resultX);
 
-        resultX.normalize();
-        resultY.normalize();
-        resultZ.normalize();
+        Vector3f.normalize(resultX);
+        Vector3f.normalize(resultY);
+        Vector3f.normalize(resultZ);
 
         float[] matrix = new float[]{
-                resultX.x, resultY.x, resultZ.x, 0,
-                resultX.y, resultY.y, resultZ.y, 0,
-                resultX.z, resultY.z, resultZ.z, 0,
-                -resultX.dot(eye), -resultY.dot(eye), -resultZ.dot(eye), 1};
+                resultX.getX(), resultY.getX(), resultZ.getX(), 0,
+                resultX.getY(), resultY.getY(), resultZ.getY(), 0,
+                resultX.getZ(), resultY.getZ(), resultZ.getZ(), 0,
+                -Vector3f.dotProduct(resultX, eye), -Vector3f.dotProduct(resultY, eye), -Vector3f.dotProduct(resultZ, eye), 1};
+
+        /*float[] matrix = new float[]{
+                resultX.getX(), resultY.getX(), resultZ.getX(), 0,
+                resultX.getY(), resultY.getY(), resultZ.getY(), 0,
+                resultX.getZ(), resultY.getZ(), resultZ.getZ(), 0,
+                -resultX.dot(eye), -resultY.dot(eye), -resultZ.dot(eye), 1};*/
         return new Matrix4f(matrix);
     }
 
@@ -53,14 +65,14 @@ public class GraphicConveyor {
     }
 
     public static Vector3f multiplyMatrix4ByVector3(final Matrix4f matrix, final Vector3f vertex) {
-        final float x = (vertex.x * matrix.m00) + (vertex.y * matrix.m10) + (vertex.z * matrix.m20) + matrix.m30;
-        final float y = (vertex.x * matrix.m01) + (vertex.y * matrix.m11) + (vertex.z * matrix.m21) + matrix.m31;
-        final float z = (vertex.x * matrix.m02) + (vertex.y * matrix.m12) + (vertex.z * matrix.m22) + matrix.m32;
-        final float w = (vertex.x * matrix.m03) + (vertex.y * matrix.m13) + (vertex.z * matrix.m23) + matrix.m33;
+        final float x = (vertex.getX() * matrix.m00) + (vertex.getY() * matrix.m10) + (vertex.getZ() * matrix.m20) + matrix.m30;
+        final float y = (vertex.getX() * matrix.m01) + (vertex.getY() * matrix.m11) + (vertex.getZ() * matrix.m21) + matrix.m31;
+        final float z = (vertex.getX() * matrix.m02) + (vertex.getY() * matrix.m12) + (vertex.getZ() * matrix.m22) + matrix.m32;
+        final float w = (vertex.getX() * matrix.m03) + (vertex.getY() * matrix.m13) + (vertex.getZ() * matrix.m23) + matrix.m33;
         return new Vector3f(x / w, y / w, z / w);
     }
 
-    public static com.cgvsu.math.Vector2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
-        return new com.cgvsu.math.Vector2f(vertex.x * width + width / 2.0F, -vertex.y * height + height / 2.0F);
+    public static Vector2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
+        return new Vector2f(vertex.getX() * width + width / 2.0F, -vertex.getY() * height + height / 2.0F);
     }
 }

@@ -5,12 +5,15 @@ import java.util.ArrayList;
 // Это заготовка для собственной библиотеки для работы с линейной алгеброй
 public class Vector3f {
     final float eps = 1e-7f;
-    float x, y, z;
+    public float x, y, z;
 
     public Vector3f(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public Vector3f() {
     }
 
     public Vector3f(Vector3f vertex1, Vector3f vertex2) {
@@ -73,6 +76,10 @@ public class Vector3f {
         return new Vector3f(x,y,z);
     }
 
+    public static Vector3f sub(Vector3f vec1, Vector3f vec2) {
+        return new Vector3f(vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z);
+    }
+
 
     public Vector3f divide(float num){
         final float eps = 1e-7f;
@@ -87,6 +94,12 @@ public class Vector3f {
         temp += Math.pow(vec.getY(), 2);
         temp += Math.pow(vec.getZ(), 2);
         return (float) Math.sqrt(temp);
+    }
+
+    public void add(Vector3f vector) {
+        this.x += vector.getX();
+        this.y += vector.getY();
+        this.z += vector.getZ();
     }
 
     public static Vector3f calculateCrossProduct(Vector3f vector1,Vector3f vector2){
