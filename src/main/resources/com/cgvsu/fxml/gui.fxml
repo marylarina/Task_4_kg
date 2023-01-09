@@ -86,7 +86,7 @@
          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
       </columnResizePolicy>
     </TableView>
-    <TableView fx:id="cameras" layoutX="14.0" layoutY="265.0" prefHeight="200.0" prefWidth="200.0">
+    <TableView fx:id="cameras" layoutX="14.0" layoutY="265.0" onMouseClicked="#setActiveCamera" prefHeight="200.0" prefWidth="200.0">
         <columns>
             <TableColumn fx:id="cameraName" prefWidth="75.0" text="Cameras" />
         </columns>
@@ -101,4 +101,5 @@
          <CheckBox fx:id="texturePolygonsCheckBox" mnemonicParsing="false" onMouseClicked="#texturePolygons" text="Использовать другое освещение" />
       </children>
    </VBox>
+   <Button layoutX="139.0" layoutY="617.0" mnemonicParsing="false" onMouseClicked="#addCamera" prefHeight="26.0" prefWidth="70.0" text="Button" />
 </AnchorPane>

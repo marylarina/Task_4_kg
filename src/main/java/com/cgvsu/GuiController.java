@@ -55,7 +55,7 @@ public class GuiController {
     private Canvas canvas;
 
     private Model mesh = null;
-    private Model activeModel = null;
+
 
     private Color color = Color.WHITE;
 
@@ -75,7 +75,7 @@ public class GuiController {
     private TableView<CameraTable> cameras;
 
     @FXML
-    private TableColumn<CameraTable, String> cameraName;
+    private TableColumn<CameraTable, Integer> cameraName;
 
     private ArrayList<Model> activeModels = new ArrayList<>();
 
@@ -100,14 +100,22 @@ public class GuiController {
             new com.cgvsu.math.Vector3f(0, 0, 0),
             1.0F, 1, 0.01F, 100);
 
+    private Camera camera1 = new Camera(
+            new com.cgvsu.math.Vector3f(0, 00, 100),
+            new com.cgvsu.math.Vector3f(0, 0, 0),
+            1.0F, 1, 0.01F, 100);
+
+    private Camera activeCamera = camera1;
     private Timeline timeline;
 
     private float[][] z_buffer;
 
+    private int count = 1;
+
     @FXML
     private void initialize() {
 
-        camerasTable.add(new CameraTable(camera, "camera1"));
+        camerasTable.add(new CameraTable(camera, 1));
         cameras.getItems().setAll(camerasTable);
         cameraName.setCellValueFactory(new PropertyValueFactory<>("name"));
 
@@ -132,12 +140,13 @@ public class GuiController {
 
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
 
-            camera.setAspectRatio((float) (width / height));
+            //camera.setAspectRatio((float) (width / height));
+            activeCamera.setAspectRatio((float) (width / height));
 
             for (int i = 0; i < activeModels.size(); i++) {
                 if (activeModels.get(i) != null) {
                     RenderEngine.render(canvas.getGraphicsContext2D(),
-                            camera, activeModels.get(i), (int) width, (int) height,
+                            activeCamera, activeModels.get(i), (int) width, (int) height,
                             canvas, color, drawMesh, useLighting, texturePolygons, z_buffer);
                 }
             }
@@ -233,6 +242,25 @@ public class GuiController {
             alert.setContentText("В приложении нет загруженных моделей или не выбрана модель из списка!");
             alert.showAndWait();
         }
+    }
+
+    @FXML
+    private void addCamera() {
+        Camera newCamera = new Camera(
+                new com.cgvsu.math.Vector3f(0, 00, 100),
+                new com.cgvsu.math.Vector3f(0, 0, 0),
+                1.0F, 1, 0.01F, 100);
+        count++;
+        camerasTable.add(new CameraTable(newCamera, count));
+        cameras.getItems().setAll(camerasTable);
+        cameraName.setCellValueFactory(new PropertyValueFactory<>("name"));
+    }
+
+    @FXML
+    private Camera setActiveCamera() {
+        CameraTable v = cameras.getSelectionModel().getSelectedItem();
+        activeCamera = v.camera;
+        return activeCamera;
     }
 
     @FXML
@@ -343,6 +371,36 @@ public class GuiController {
 
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
+        activeCamera.movePosition(new com.cgvsu.math.Vector3f(0, 0, -TRANSLATION));
+    }
+
+    @FXML
+    public void handleCameraBackward(ActionEvent actionEvent) {
+        activeCamera.movePosition(new com.cgvsu.math.Vector3f(0, 0, TRANSLATION));
+    }
+
+    @FXML
+    public void handleCameraLeft(ActionEvent actionEvent) {
+        activeCamera.movePosition(new com.cgvsu.math.Vector3f(TRANSLATION, 0, 0));
+    }
+
+    @FXML
+    public void handleCameraRight(ActionEvent actionEvent) {
+        activeCamera.movePosition(new com.cgvsu.math.Vector3f(-TRANSLATION, 0, 0));
+    }
+
+    @FXML
+    public void handleCameraUp(ActionEvent actionEvent) {
+        activeCamera.movePosition(new com.cgvsu.math.Vector3f(0, TRANSLATION, 0));
+    }
+
+    @FXML
+    public void handleCameraDown(ActionEvent actionEvent) {
+        activeCamera.movePosition(new Vector3f(0, -TRANSLATION, 0));
+    }
+
+    /*@FXML
+    public void handleCameraForward(ActionEvent actionEvent) {
         camera.movePosition(new com.cgvsu.math.Vector3f(0, 0, -TRANSLATION));
     }
 
@@ -369,5 +427,5 @@ public class GuiController {
     @FXML
     public void handleCameraDown(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, -TRANSLATION, 0));
-    }
+    }*/
 }
