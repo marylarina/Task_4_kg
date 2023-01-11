@@ -47,6 +47,8 @@ public class GuiController {
     @FXML
     public Button delete;
 
+    @FXML
+    public Button addCamera;
 
     @FXML
     AnchorPane anchorPane;
@@ -57,7 +59,7 @@ public class GuiController {
     private Model mesh = null;
 
 
-    private Color color = Color.WHITE;
+    private Color staticColor = Color.BLUE;
 
     @FXML
     private ColorPicker colorPicker = new ColorPicker();
@@ -95,27 +97,34 @@ public class GuiController {
     private boolean useLighting = false;
     private boolean texturePolygons = false;
 
-    private Camera camera = new Camera(
-            new com.cgvsu.math.Vector3f(0, 00, 100),
+    private Camera activeCamera = new Camera(
+            new com.cgvsu.math.Vector3f(0, 0, 100),
             new com.cgvsu.math.Vector3f(0, 0, 0),
             1.0F, 1, 0.01F, 100);
 
-    private Camera camera1 = new Camera(
-            new com.cgvsu.math.Vector3f(0, 00, 100),
-            new com.cgvsu.math.Vector3f(0, 0, 0),
-            1.0F, 1, 0.01F, 100);
-
-    private Camera activeCamera = camera1;
     private Timeline timeline;
 
     private float[][] z_buffer;
 
     private int count = 1;
 
+    private Color activeColor;
+    private Color currentColor;
+    private Color targetColor;
+
+    private final Color[] colors1 = {Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN, Color.BLUE, Color.PURPLE, Color.PINK};
+    private final Color[] colors2 = {Color.CYAN, Color.MAGENTA, Color.YELLOW};
+    private final Color[] colors3 = {Color.BLACK, Color.RED, Color.WHITE};
+    private Color[] colors;
+
+    private int colorIndex = 1;
+    private int stepCount = 1;
+    private final int numberOfSteps = 50;
+
     @FXML
     private void initialize() {
 
-        camerasTable.add(new CameraTable(camera, 1));
+        camerasTable.add(new CameraTable(activeCamera, 1));
         cameras.getItems().setAll(camerasTable);
         cameraName.setCellValueFactory(new PropertyValueFactory<>("name"));
 
@@ -126,6 +135,11 @@ public class GuiController {
         timeline.setCycleCount(Animation.INDEFINITE);
         whiteTheme();
         drawingMode.setSpacing(4);
+
+        colors = colors1;
+        activeColor = colors[0];
+        currentColor = activeColor;
+        targetColor = colors[1];
 
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
             double width = canvas.getWidth();
@@ -140,15 +154,46 @@ public class GuiController {
 
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
 
-            //camera.setAspectRatio((float) (width / height));
             activeCamera.setAspectRatio((float) (width / height));
 
-            for (int i = 0; i < activeModels.size(); i++) {
-                if (activeModels.get(i) != null) {
-                    RenderEngine.render(canvas.getGraphicsContext2D(),
-                            activeCamera, activeModels.get(i), (int) width, (int) height,
-                            canvas, color, drawMesh, useLighting, texturePolygons, z_buffer);
+            if(texturePolygons) {
+
+                float redStep = getRedStep(activeColor, targetColor) / numberOfSteps;
+                float greenStep = getGreenStep(activeColor, targetColor) / numberOfSteps;
+                float blueStep = getBlueStep(activeColor, targetColor) / numberOfSteps;
+
+                if (stepCount < numberOfSteps) {
+                    currentColor = getColor(redStep, greenStep, blueStep, currentColor);
+                    stepCount++;
+                } else {
+                    stepCount = 1;
+                    currentColor = targetColor;
+                    activeColor = targetColor;
+                    colorIndex++;
+                    if (colorIndex == colors.length) {
+                        colorIndex = 0;
+                    }
+                    targetColor = colors[colorIndex];
                 }
+
+                for (int i = 0; i < activeModels.size(); i++) {
+                    if (activeModels.get(i) != null) {
+                        RenderEngine.render(canvas.getGraphicsContext2D(),
+                                activeCamera, activeModels.get(i), (int) width, (int) height,
+                                canvas, currentColor, drawMesh, useLighting, texturePolygons, z_buffer);
+                    }
+                }
+
+            } else {
+
+                for (int i = 0; i < activeModels.size(); i++) {
+                    if (activeModels.get(i) != null) {
+                        RenderEngine.render(canvas.getGraphicsContext2D(),
+                                activeCamera, activeModels.get(i), (int) width, (int) height,
+                                canvas, staticColor, drawMesh, useLighting, texturePolygons, z_buffer);
+                    }
+                }
+
             }
 
         });
@@ -157,16 +202,36 @@ public class GuiController {
         timeline.play();
     }
 
+    private float getRedStep(Color startColor, Color endColor) {
+        return (float) endColor.getRed() - (float) startColor.getRed();
+    }
+
+    private float getGreenStep(Color startColor, Color endColor) {
+        return (float) endColor.getGreen() - (float) startColor.getGreen();
+    }
+
+    private float getBlueStep(Color startColor, Color endColor) {
+        return (float) endColor.getBlue() - (float) startColor.getBlue();
+    }
+
+    private Color getColor(float redStep, float greenStep, float blueStep, Color currentColor) {
+        double r = currentColor.getRed() + redStep;
+        double g = currentColor.getGreen() + greenStep;
+        double b = currentColor.getBlue() + blueStep;
+        return new Color(r, g, b, 1);
+    }
+
     @FXML
     private Color changeColor() {
-        color = colorPicker.getValue();
-        return color;
+        staticColor = colorPicker.getValue();
+        return staticColor;
     }
 
     @FXML
     private void whiteTheme() {
         anchorPane.setStyle("-fx-background-color: #ffffff");
         delete.setStyle("-fx-border-color: #1d1d1d");
+        addCamera.setStyle("-fx-border-color: #1d1d1d");
         drawingMode.setStyle("-fx-border-style: solid;"
                 + "-fx-border-width: 2;"
                 + "-fx-border-color: #1d1d1d");
@@ -188,6 +253,7 @@ public class GuiController {
     private void blackTheme() {
         anchorPane.setStyle("-fx-background-color: #181818");
         delete.setStyle("-fx-border-color: #A9A9A9");
+        addCamera.setStyle("-fx-border-color: #A9A9A9");
         drawingMode.setStyle("-fx-border-style: solid;"
                 + "-fx-border-width: 2;"
                 + "-fx-border-color: #A9A9A9");
@@ -247,7 +313,7 @@ public class GuiController {
     @FXML
     private void addCamera() {
         Camera newCamera = new Camera(
-                new com.cgvsu.math.Vector3f(0, 00, 100),
+                new com.cgvsu.math.Vector3f(0, 0, 100),
                 new com.cgvsu.math.Vector3f(0, 0, 0),
                 1.0F, 1, 0.01F, 100);
         count++;

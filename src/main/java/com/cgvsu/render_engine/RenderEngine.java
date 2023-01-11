@@ -92,31 +92,31 @@ public class RenderEngine {
                 drawPolygon(graphicsContext, resultPoints, nVerticesInPolygon);
             }
 
-            if(useLighting && !texturePolygons) {
+            if(useLighting) {
                 Vector3f position = new Vector3f(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
                 Vector3f target = new Vector3f(camera.getTarget().x, camera.getTarget().y, camera.getTarget().z);
                 fillPolygonWithLight1(graphicsUtils, resultPoints, color, z_buffer, position, target, z_coordinates, polygonNormal);
             }
 
-            if(!useLighting && !texturePolygons) {
+            if(!useLighting) {
                 Vector3f position = new Vector3f(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
                 fillPolygonWithoutLight(graphicsUtils, resultPoints, color, z_buffer, position, z_coordinates);
             }
 
-            if(texturePolygons && mesh.textureVertices.size() != 0) {
-                /*Vector3f position = new Vector3f(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
+            /*if(texturePolygons && mesh.textureVertices.size() != 0) {
+                *//*Vector3f position = new Vector3f(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
                 Vector3f target = new Vector3f(camera.getTarget().x, camera.getTarget().y, camera.getTarget().z);
                 try {
                     BufferedImage texture = ImageIO.read(new File("aaaaaa.jpg"));
                     texturePolygon(graphicsUtils, resultPoints, textureVertices, texture, z_buffer, position, target, z_coordinates, polygonNormal);
                 } catch (IOException e) {
                     System.out.println(e);
-                }*/
+                }*//*
                 Vector3f position = new Vector3f(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
                 Vector3f target = new Vector3f(camera.getTarget().x, camera.getTarget().y, camera.getTarget().z);
                 //fillPolygonWithLight(graphicsUtils, resultPoints, color, z_buffer, position, target, z_coordinates, polygonNormal);
                 fillPolygonWithLight(graphicsUtils, resultPoints, color, z_buffer, position, target, z_coordinates, normals, resultPoints3D);
-            }
+            }*/
         }
     }
 

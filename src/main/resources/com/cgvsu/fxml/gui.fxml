@@ -4,6 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
 
 <AnchorPane fx:id="anchorPane" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.GuiController">
     <MenuBar>
@@ -76,8 +77,11 @@
     </MenuBar>
 
     <Canvas fx:id="canvas" height="870" width="1600" AnchorPane.topAnchor="30.0" />
-    <ColorPicker fx:id="colorPicker" layoutX="14.0" layoutY="480.0" onAction="#changeColor" prefHeight="26.0" prefWidth="150.0" />
-   <Button fx:id="delete" layoutX="16.0" layoutY="617.0" mnemonicParsing="false" onMouseClicked="#setDeleteModel" text="Удалить модель" />
+    <ColorPicker fx:id="colorPicker" layoutX="14.0" layoutY="480.0" onAction="#changeColor" prefHeight="26.0" prefWidth="150.0">
+      <value>
+         <Color blue="1.0" />
+      </value></ColorPicker>
+   <Button fx:id="delete" layoutX="14.0" layoutY="622.0" mnemonicParsing="false" onMouseClicked="#setDeleteModel" prefHeight="26.0" prefWidth="128.0" text="Удалить модель" />
     <TableView fx:id="table" layoutX="14.0" layoutY="50.0" onMouseClicked="#handle" prefHeight="200.0" prefWidth="200.0">
         <columns>
             <TableColumn fx:id="model" prefWidth="75.0" text="Models" />
@@ -98,8 +102,8 @@
       <children>
          <CheckBox fx:id="drawMeshCheckBox" mnemonicParsing="false" onMouseClicked="#drawMesh" text="Сетка" />
           <CheckBox fx:id="useLightingCheckBox" mnemonicParsing="false" onAction="#setUseLighting" text="Использовать освещение" />
-         <CheckBox fx:id="texturePolygonsCheckBox" mnemonicParsing="false" onMouseClicked="#texturePolygons" text="Использовать другое освещение" />
+         <CheckBox fx:id="texturePolygonsCheckBox" mnemonicParsing="false" onMouseClicked="#texturePolygons" text="Иллюминация" />
       </children>
    </VBox>
-   <Button layoutX="139.0" layoutY="617.0" mnemonicParsing="false" onMouseClicked="#addCamera" prefHeight="26.0" prefWidth="70.0" text="Button" />
+   <Button fx:id="addCamera" layoutX="14.0" layoutY="655.0" mnemonicParsing="false" onMouseClicked="#addCamera" prefHeight="26.0" prefWidth="128.0" text="Добавить камеру" />
 </AnchorPane>
